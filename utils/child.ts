@@ -23,17 +23,23 @@ let LMS_TABLE: {
 } = SUBSET as any;
 
 // Optional: switch to WHO by changing the import path.
-export const loadFullLMS = async (source: "cdc" | "who" = "cdc") => {
+// en üstteki LMS_TABLE aynı kalsın
+
+export const loadFullLMS = async (source: 'cdc' | 'who' = 'cdc') => {
   try {
-    const path =
-      source === "cdc"
-        ? require("../../assets/lms/cdc_bmi_lms.json")
-        : require("../../assets/lms/who_bmi_lms.json");
-    LMS_TABLE = path;
+    const mod =
+      source === 'cdc'
+        ? await import('../assets/lms/cdc_bmi_lms.json')
+        : await import('../assets/lms/who_bmi_lms.json');
+
+    // Metro JSON importunda veri mod.default altında olabilir
+    // @ts-ignore
+    LMS_TABLE = (mod as any).default ?? (mod as any);
   } catch (e) {
-    // If file not found, app uses SUBSET silently.
+    // Dosyalar yoksa SUBSET ile devam edeceğiz; sessizce geç.
   }
 };
+
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
